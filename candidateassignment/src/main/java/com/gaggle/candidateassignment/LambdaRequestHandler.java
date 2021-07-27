@@ -30,15 +30,16 @@ public class LambdaRequestHandler implements RequestHandler<Map<String, String>,
 		String dbPassword = System.getenv("dbPassword");
 		String dbUrl = System.getenv("dbUrl");
 		String dbDriverClassName = System.getenv("dbDriverClassName");
-		
 
-		
-		// variables I had to initialize manually because I could not figure out how to pass them in
+		// variables I had to initialize manually because I could not figure out how to
+		// pass them in
 		// to the context object during a unit test
 		if (dbUsername == null) dbUsername = "root";
 		if (dbPassword == null) dbPassword = "password";
 		if (dbUrl == null) dbUrl = "jdbc:mysql://localhost:3306/gaggle";
 		if (dbDriverClassName == null) dbDriverClassName = "com.mysql.cj.jdbc.Driver";
+		
+		JdbcTemplate jdcbTemplate = getJDBCTemplate(dbUsername, dbPassword, dbUrl, dbDriverClassName);
 
 		// respond according to input from lambda caller
 		Map<String, Object> returnMap = new HashMap<>();
@@ -53,17 +54,12 @@ public class LambdaRequestHandler implements RequestHandler<Map<String, String>,
 				return returnMap;
 			}
 
-			DataSource dsCustom = DataSourceBuilder.create().username(dbUsername).password(dbPassword).url(dbUrl)
-					.driverClassName(dbDriverClassName).build();
-
-			JdbcTemplate jdcbTemplate = new JdbcTemplate(dsCustom);
-			
 			String sql = "SELECT * from GAGGLE where firstname like ? OR lastname like ?";
 
 			Stream<Gaggle> gaggleStream = jdcbTemplate.queryForStream(sql, new GaggleMapper(), temp, temp);
-			
+
 			List<Gaggle> gaggles = gaggleStream.collect(Collectors.toList());
-			
+
 			returnMap.put("result", gaggles);
 			return returnMap;
 
@@ -77,11 +73,6 @@ public class LambdaRequestHandler implements RequestHandler<Map<String, String>,
 				returnMap.put("result", "This function takes only an integer value.");
 				return returnMap;
 			}
-
-			DataSource dsCustom = DataSourceBuilder.create().username(dbUsername).password(dbPassword).url(dbUrl)
-					.driverClassName(dbDriverClassName).build();
-
-			JdbcTemplate jdcbTemplate = new JdbcTemplate(dsCustom);
 			
 			String sql = "SELECT * from GAGGLE where id = ?";
 
@@ -111,6 +102,15 @@ public class LambdaRequestHandler implements RequestHandler<Map<String, String>,
 			return gaggle;
 
 		}
+	}
+
+	private JdbcTemplate getJDBCTemplate(String dbUsername, String dbPassword, String dbUrl, String dbDriverClassName) {
+	
+		DataSource dsCustom = DataSourceBuilder.create().username(dbUsername).password(dbPassword).url(dbUrl)
+				.driverClassName(dbDriverClassName).build();
+
+		return new JdbcTemplate(dsCustom);
+
 	}
 
 }
