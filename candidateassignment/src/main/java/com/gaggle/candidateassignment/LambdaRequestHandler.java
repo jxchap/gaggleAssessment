@@ -31,12 +31,14 @@ public class LambdaRequestHandler implements RequestHandler<Map<String, String>,
 		String dbUrl = System.getenv("dbUrl");
 		String dbDriverClassName = System.getenv("dbDriverClassName");
 		
-		// variables I had to add manually because I could not figure out how to pass them in
+
+		
+		// variables I had to initialize manually because I could not figure out how to pass them in
 		// to the context object during a unit test
-//		String dbUsername = "root";
-//		String dbPassword = "password";
-//		String dbUrl = "jdbc:mysql://localhost:3306/gaggle";
-//		String dbDriverClassName = "com.mysql.cj.jdbc.Driver";
+		if (dbUsername == null) dbUsername = "root";
+		if (dbPassword == null) dbPassword = "password";
+		if (dbUrl == null) dbUrl = "jdbc:mysql://localhost:3306/gaggle";
+		if (dbDriverClassName == null) dbDriverClassName = "com.mysql.cj.jdbc.Driver";
 
 		// respond according to input from lambda caller
 		Map<String, Object> returnMap = new HashMap<>();
