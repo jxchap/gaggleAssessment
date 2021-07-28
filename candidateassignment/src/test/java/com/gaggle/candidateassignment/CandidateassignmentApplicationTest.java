@@ -9,13 +9,15 @@ import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.amazonaws.services.lambda.runtime.ClientContext;
 import com.amazonaws.services.lambda.runtime.CognitoIdentity;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
-import com.gaggle.candidateassignment.domain.Gaggle;
+import com.gaggle.candidateassignment.domain.Person;
+
 
 @SpringBootTest
 class CandidateassignmentApplicationTest {
@@ -23,6 +25,9 @@ class CandidateassignmentApplicationTest {
 	Context context;
 
 	Map<String, String> testJson;
+	
+	@Autowired
+	LambdaRequestHandler lambdaRequestHandler;
 
 	@BeforeEach
 	public void setContext() {
@@ -35,9 +40,9 @@ class CandidateassignmentApplicationTest {
 
 		testJson.put("searchById", "1");
 
-		Map<String, Object> result = new LambdaRequestHandler().handleRequest(testJson, context);
+		Map<String, Object> result = lambdaRequestHandler.handleRequest(testJson, context);
 
-		assertEquals("Jack", ((Gaggle) result.get("result")).getFirstName());
+		assertEquals("Jack", ((Person) result.get("result")).getFirstname());
 
 	}
 
@@ -46,21 +51,21 @@ class CandidateassignmentApplicationTest {
 
 		testJson.put("searchByName", "b");
 
-		Map<String, Object> result = new LambdaRequestHandler().handleRequest(testJson, context);
+		Map<String, Object> result = lambdaRequestHandler.handleRequest(testJson, context);
 
-		List<Gaggle> gaggleList = new ArrayList<>();
+		List<Person> personList = new ArrayList<>();
 
 		result.forEach((key, value) -> {
 
-			((List) value).forEach(x -> gaggleList.add((Gaggle) x));
+			((List) value).forEach(x -> personList.add((Person) x));
 
 		});
 
 		String[] testNames = { "Brian", "Bruce" };
 
-		for (int i = 0; i < gaggleList.size(); i++) {
+		for (int i = 0; i < personList.size(); i++) {
 
-			assertEquals(testNames[i], gaggleList.get(i).getFirstName());
+			assertEquals(testNames[i], personList.get(i).getFirstname());
 		}
 
 	}
